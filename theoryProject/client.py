@@ -24,8 +24,24 @@ def send(msg):
 
     print(client.recv(2048).decode(FORMAT))        # just hardcoding a max message size
 
-send('Hello')
-input()             # just so that only after any keypress, the next message is sent
-send('World')
-input()
-send(DISCONNECT_MESSAGE)
+send('NVlmeNRzf7')
+# input()             # just so that only after any keypress, the next message is sent
+# send('World')
+# input()
+# send(DISCONNECT_MESSAGE)
+
+while True:
+    msg = client.recv(2048)
+
+    try:
+        msg = msg.decode(FORMAT)
+        print(msg)
+    except:
+        pass
+        # try:
+        #     dataObj = pickle.loads(msg)
+        #     print(f'received: int {dataObj.intVal}, float {dataObj.floatVal}, char {dataObj.charVal}')
+        #     send(DISCONNECT_MESSAGE)
+        #     break
+        # except:
+        #     pass

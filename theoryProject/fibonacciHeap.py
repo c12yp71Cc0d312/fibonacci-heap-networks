@@ -1,8 +1,9 @@
 import math
 
 class FibonacciTree:
-    def __init__(self, key):
-        self.key = key
+    def __init__(self, pc_tuple):
+        self.key = pc_tuple[0]
+        self.connection_info = pc_tuple[1]
         self.children = []
         self.order = 0
 
@@ -27,7 +28,9 @@ class FibonacciHeap:
     def get_min(self):
         if self.least is None:
             return None
-        return self.least.key
+        # return self.least.key
+        print(self.least.key)
+        return self.least.connection_info
 
     def extract_min(self):
         smallest = self.least
@@ -41,7 +44,9 @@ class FibonacciHeap:
                 self.least = self.trees[0]
                 self.consolidate()
             self.count = self.count - 1
-            return smallest.key
+            # return smallest.key
+            print(smallest.key)
+            return smallest.connection_info
 
     def consolidate(self):
         aux = (floor_log2(self.count) + 1) * [None]
@@ -72,27 +77,49 @@ def floor_log2(x):
     return math.frexp(x)[1] - 1
 
 
-fheap = FibonacciHeap()
+# fheap = FibonacciHeap()
 
-print('Menu')
-print('insert <data>')
-print('min get')
-print('min extract')
-print('quit')
+# print('Menu')
+# print('insert <data>')
+# print('min get')
+# print('min extract')
+# print('quit')
 
-while True:
-    do = input('What would you like to do? ').split()
 
-    operation = do[0].strip().lower()
+def perform_operation(**kwargs):
+    # do = input('What would you like to do? ').split()
+    # operation = do[0].strip().lower()
+
+    fheap = kwargs.get('FHEAP')
+    operation = kwargs.get('OPERATION')
     if operation == 'insert':
-        data = int(do[1])
-        fheap.insert(data)
-    elif operation == 'min':
-        suboperation = do[1].strip().lower()
-        if suboperation == 'get':
-            print('Minimum value: {}'.format(fheap.get_min()))
-        elif suboperation == 'extract':
-            print('Minimum value removed: {}'.format(fheap.extract_min()))
+        pc_tuple = kwargs.get('PC_TUPLE')
+        fheap.insert(pc_tuple)
+        print(f'inserted priority {pc_tuple[0]}')
 
-    elif operation == 'quit':
-        break
+    elif operation == 'min get':
+        minConInfo = fheap.get_min()
+        print(f'Minimum value connection: {minConInfo}')
+        return minConInfo
+
+    elif operation == 'min extract':
+        print('Minimum value removed: {}'.format(fheap.extract_min()))
+
+    else:
+        print('invalid operation')
+
+
+# while True:
+#     do = input('What would you like to do? ').split()
+#     operation = do[0].strip().lower()
+#     if operation == 'insert':
+#         data = int(do[1])
+#         fheap.insert(data)
+#     elif operation == 'min':
+#         suboperation = do[1].strip().lower()
+#         if suboperation == 'get':
+#             print('Minimum value: {}'.format(fheap.get_min()))
+#         elif suboperation == 'extract':
+#             print('Minimum value removed: {}'.format(fheap.extract_min()))
+#     elif operation == 'quit':
+#         break

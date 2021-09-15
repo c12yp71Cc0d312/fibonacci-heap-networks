@@ -15,6 +15,24 @@ FORMAT = 'utf-8'    # format to decode the bytes message into
 
 DISCONNECT_MESSAGE = '!DISCONNECT'  # if this message is received, we will close the connection and disconnect client from the server
 
+KEY_PRIORITY = {'NVlmeNRzf7': 1,
+                'xLrzS5gq0j': 2,
+                'QuQtu3NUus': 3,
+                'SO7NZPfjDv': 4,
+                'Cg19Dptlbt': 5,
+                'P6VG2yrfKE': 6,
+                'f4vqNin2fB': 7,
+                'KVordqgoIJ': 8,
+                '4Osgxwn47b': 9,
+                'ksfAh4fdfd': 10
+}
+
+fHeap = fibonacciHeap.FibonacciHeap()
+
+# connection_info = (conn, addr)
+# pc_tuple = (KEY_PRIORITY[key], connection_info)
+# fibonacciHeap.perform_operation(FHEAP=fHeap, OPERATION='insert', PC_TUPLE=pc_tuple)
+
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 # family - AF_INET (type of address, here, ipv4)
 # type - SOCK_STREAM (sends data as stream)
@@ -25,6 +43,8 @@ def handle_client(conn, addr):
     # handle individual connections bw each client and server
     print(f'[NEW CONNECTION] {addr} connected.')
 
+    connection_info = (conn, addr)
+
     connected = True
     while connected:
         msg_length = conn.recv(HEADER).decode(FORMAT)       # blocking line - wont pass until we receive a message
@@ -34,35 +54,55 @@ def handle_client(conn, addr):
             if msg == DISCONNECT_MESSAGE:
                 connected = False
 
+            else:
+                key = msg
+                pc_tuple = (KEY_PRIORITY[key], connection_info)
+                fibonacciHeap.perform_operation(FHEAP=fHeap, OPERATION='insert', PC_TUPLE=pc_tuple)
+
             print(f'[{addr}] {msg}')
-            conn.send('Message receied'.encode(FORMAT))
+            conn.send(f'received {msg}'.encode(FORMAT))
 
-    conn.close()
+    # conn.close()
 
 
-def start():
+def start(numClients):
     # make server start listening for connections, and passing them to handle_client to run in a new thread
+    # server.settimeout(30)
     server.listen()
     print(f'[LISTENING] Server is listening on {SERVER}')
 
-    time_limit = 30     # duration for which connections will be accepted
-    start_time = time.time()
-    while True:
-        current_time = time.time()
-        elapsed_time = current_time - start_time
+    # try:
+    # time_limit = 30     # duration for which connections will be accepted
+    # start_time = time.time()
 
-        if elapsed_time <= time_limit:
-            conn, addr = server.accept()    # blocking line
-            # waits until a new connection occurs, after which it stores the add of that connection (what ip and port it came from),
-            # and we will store an actual socket object conn which will help us send info back to that connection
-            thread = threading.Thread(target=handle_client, args=(conn, addr))
-            thread.start()
-            print(f'[ACTIVE CONNECTIONS] {threading.activeCount() - 1}')    # -1 because 1 thread [start()] is always running
+    print('connection window opened')
 
-        else:
-            break
+    while numClients > 0:
+        numClients -= 1
+    # while time.time() <= start_time + time_limit:
+        # current_time = time.time()
+        # elapsed_time = current_time - start_time
+        # print(f'elapsed: {elapsed_time}')
 
+        # if elapsed_time <= time_limit:
+        conn, addr = server.accept()    # blocking line
+        # waits until a new connection occurs, after which it stores the add of that connection (what ip and port it came from),
+        # and we will store an actual socket object conn which will help us send info back to that connection
+        thread = threading.Thread(target=handle_client, args=(conn, addr))
+        thread.start()
+        print(f'[ACTIVE CONNECTIONS] {threading.activeCount() - 1}')    # -1 because 1 thread [start()] is always running
+
+        # else:
+        #
+        #     break
+
+    # except:
+    time.sleep(2)
+    print('Connection window closed')
+    ci = fibonacciHeap.perform_operation(FHEAP=fHeap, OPERATION='min get')
+    ci[0].send('data sent from server'.encode(FORMAT))
 
 
 print("[STARTING] server is starting...")
-start()
+numClients = input('enter no of clients: ')
+start(int(numClients))
