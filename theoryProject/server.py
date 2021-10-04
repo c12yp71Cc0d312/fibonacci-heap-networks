@@ -58,6 +58,7 @@ def handle_client(conn, addr):
                 key = msg
                 pc_tuple = (KEY_PRIORITY[key], connection_info)
                 fibonacciHeap.perform_operation(FHEAP=fHeap, OPERATION='insert', PC_TUPLE=pc_tuple)
+                # connected = False
 
             print(f'[{addr}] {msg}')
             conn.send(f'received {msg}'.encode(FORMAT))
@@ -107,6 +108,8 @@ def start(numClients):
     while(clientsLeft > 0):
         ci = fibonacciHeap.perform_operation(FHEAP=fHeap, OPERATION='min extract')
         ci[0].send('data sent from server'.encode(FORMAT))
+        # time.sleep(1)
+        # ci[0].close()
         clientsLeft -= 1
 
 
