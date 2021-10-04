@@ -24,7 +24,7 @@ def send(msg):
 
     print(client.recv(2048).decode(FORMAT))        # just hardcoding a max message size
 
-send('P6VG2yrfKE')
+send('NVlmeNRzf7')
 # input()             # just so that only after any keypress, the next message is sent
 # send('World')
 # input()

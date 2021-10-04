@@ -18,10 +18,10 @@ class FibonacciHeap:
         self.least = None
         self.count = 0
 
-    def insert(self, key):
-        new_tree = FibonacciTree(key)
+    def insert(self, pc_tuple):
+        new_tree = FibonacciTree(pc_tuple)
         self.trees.append(new_tree)
-        if (self.least is None or key < self.least.key):
+        if (self.least is None or pc_tuple[0] < self.least.key):
             self.least = new_tree
         self.count = self.count + 1
 
@@ -103,7 +103,9 @@ def perform_operation(**kwargs):
         return minConInfo
 
     elif operation == 'min extract':
-        print('Minimum value removed: {}'.format(fheap.extract_min()))
+        minConInfo = fheap.extract_min()
+        print(f'Minimum value removed: {minConInfo}')
+        return minConInfo
 
     else:
         print('invalid operation')

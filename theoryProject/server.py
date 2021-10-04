@@ -75,10 +75,12 @@ def start(numClients):
     # time_limit = 30     # duration for which connections will be accepted
     # start_time = time.time()
 
-    print('connection window opened')
+    clientsLeft = numClients
 
-    while numClients > 0:
-        numClients -= 1
+    print('connection window opened')
+    print(f'no of clients left to join: {clientsLeft}')
+    while clientsLeft > 0:
+        clientsLeft -= 1
     # while time.time() <= start_time + time_limit:
         # current_time = time.time()
         # elapsed_time = current_time - start_time
@@ -92,15 +94,20 @@ def start(numClients):
         thread.start()
         print(f'[ACTIVE CONNECTIONS] {threading.activeCount() - 1}')    # -1 because 1 thread [start()] is always running
 
+        print(f'no of clients left to join: {clientsLeft}')
         # else:
         #
         #     break
 
     # except:
-    time.sleep(2)
+    # time.sleep(2)
     print('Connection window closed')
-    ci = fibonacciHeap.perform_operation(FHEAP=fHeap, OPERATION='min get')
-    ci[0].send('data sent from server'.encode(FORMAT))
+
+    clientsLeft = numClients
+    while(clientsLeft > 0):
+        ci = fibonacciHeap.perform_operation(FHEAP=fHeap, OPERATION='min extract')
+        ci[0].send('data sent from server'.encode(FORMAT))
+        clientsLeft -= 1
 
 
 print("[STARTING] server is starting...")
