@@ -101,13 +101,13 @@ def start(numClients):
         #     break
 
     # except:
-    # time.sleep(2)
+    time.sleep(2)
     print('Connection window closed')
 
     clientsLeft = numClients
     while(clientsLeft > 0):
         ci = fibonacciHeap.perform_operation(FHEAP=fHeap, OPERATION='min extract')
-        ci[0].send('data sent from server'.encode(FORMAT))
+        ci[0].send(f'data sent from server in order position {numClients - clientsLeft + 1}'.encode(FORMAT))
         # time.sleep(1)
         # ci[0].close()
         clientsLeft -= 1
