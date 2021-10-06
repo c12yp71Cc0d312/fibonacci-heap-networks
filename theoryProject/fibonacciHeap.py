@@ -13,6 +13,9 @@ class FibonacciTree:
 
 
 class FibonacciHeap:
+
+    numOfElements = 0
+
     def __init__(self):
         self.trees = []
         self.least = None
