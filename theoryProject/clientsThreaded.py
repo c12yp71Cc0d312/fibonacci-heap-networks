@@ -12,7 +12,7 @@ ADDR = (SERVER, PORT)
 
 clientSockets = []
 
-numOfClients = 2
+numOfClients = 10
 
 for i in range(numOfClients):
     clientSockets.append(socket.socket(socket.AF_INET, socket.SOCK_STREAM))
@@ -59,11 +59,20 @@ def sendAndReceiveData(key, client, clientNum):
             #     pass
 
 
+keysList = ['NVlmeNRzf7',
+            'xLrzS5gq0j',
+            'QuQtu3NUus',
+            'SO7NZPfjDv',
+            'Cg19Dptlbt',
+            'P6VG2yrfKE',
+            'f4vqNin2fB',
+            'KVordqgoIJ',
+            '4Osgxwn47b',
+            'ksfAh4fdfd']
+
+
 for i in range(numOfClients):
-    if i == 0:
-        key = 'P6VG2yrfKE'
-    else:
-        key = 'NVlmeNRzf7'
+    key = keysList[i]
     thread = threading.Thread(target=sendAndReceiveData, args=(key, clientSockets[i], i))
     thread.start()
     # sendAndReceiveData(key, clientSockets[i])
