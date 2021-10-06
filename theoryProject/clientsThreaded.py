@@ -2,8 +2,11 @@ import random
 import socket
 import threading
 import randomkeys
+import time
+
 # from server import ClientCountClass
 import server
+start_time = time.perf_counter ()
 HEADER = 16
 PORT = 5050
 FORMAT = 'utf-8'
@@ -56,8 +59,9 @@ def main():
         thread.start()
         # sendAndReceiveData(key, clientSockets[i])
 
-
+iter =1
 def sendAndReceiveData(key, client, clientNum):
+    global iter
     print(f'client {clientNum} sending key {key}')
     send(key, client, clientNum)
     # send('P6VG2yrfKE')
@@ -72,6 +76,10 @@ def sendAndReceiveData(key, client, clientNum):
         try:
             msg = msg.decode(FORMAT)
             print(f'client {clientNum} received: {msg}')
+            if(iter==numOfClients):
+                end_time = time.perf_counter()
+                print("\n\n", end_time - start_time, "seconds")
+            iter+=1
         except:
             pass
             # try:
