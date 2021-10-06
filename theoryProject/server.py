@@ -14,58 +14,55 @@ ADDR = (SERVER, PORT)
 
 FORMAT = 'utf-8'    # format to decode the bytes message into
 
-DISCONNECT_MESSAGE = '!DISCONNECT'  # if this message is received, we will close the connection and disconnect client from the server
+# DISCONNECT_MESSAGE = '!DISCONNECT'  # if this message is received, we will close the connection and disconnect client from the server
+nc = 0
 
-KEY_PRIORITY = { }
-
-for i in range (10000):
-    KEY_PRIORITY[randomkeys.keys[i]] = i+1
-
-fHeap = fibonacciHeap.FibonacciHeap()
-
-# connection_info = (conn, addr)
-# pc_tuple = (KEY_PRIORITY[key], connection_info)
-# fibonacciHeap.perform_operation(FHEAP=fHeap, OPERATION='insert', PC_TUPLE=pc_tuple)
-
-server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-# family - AF_INET (type of address, here, ipv4)
-# type - SOCK_STREAM (sends data as stream)
-
-server.bind(ADDR)   # binding the server socket to the specified address
-
-def handle_client(conn, addr):
-    # handle individual connections bw each client and server
-    print(f'[NEW CONNECTION] {addr} connected.')
-
-    connection_info = (conn, addr)
-
-    connected = True
-    while connected:
-        msg_length = conn.recv(HEADER).decode(FORMAT)       # blocking line - wont pass until we receive a message
-        if msg_length:
-            msg_length = int(msg_length)
-            msg = conn.recv(msg_length).decode(FORMAT)
-            if msg == DISCONNECT_MESSAGE:
-                connected = False
-
-            else:
-                key = msg
-                pc_tuple = (KEY_PRIORITY[key], connection_info)
-                fibonacciHeap.perform_operation(FHEAP=fHeap, OPERATION='insert', PC_TUPLE=pc_tuple)
-                fibonacciHeap.FibonacciHeap.numOfElements += 1
-                # connected = False
-
-            print(f'[{addr}] {msg}')
-            conn.send(f'received {msg}'.encode(FORMAT))
-
-    # conn.close()
+class ClientCountClass:
+    clientCount = 0
 
 
-def start(numClients):
+class KeyPriorities:
+    KEY_PRIORITY = {}
+    @staticmethod
+    def setPriotities():
+        for i in range(10000):
+            KeyPriorities.KEY_PRIORITY[randomkeys.keys[i]] = i+1
+
+
+def initHeapAndSocket():
+    fHeap = fibonacciHeap.FibonacciHeap()
+
+    # connection_info = (conn, addr)
+    # pc_tuple = (KEY_PRIORITY[key], connection_info)
+    # fibonacciHeap.perform_operation(FHEAP=fHeap, OPERATION='insert', PC_TUPLE=pc_tuple)
+
+    server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    # family - AF_INET (type of address, here, ipv4)
+    # type - SOCK_STREAM (sends data as stream)
+
+    server.bind(ADDR)   # binding the server socket to the specified address
+    return fHeap, server
+
+
+def main():
+    KeyPriorities.setPriotities()
+    fHeap, serverSocket = initHeapAndSocket()
+
+    print("[STARTING] server is starting...")
+    numClients = input('enter no of clients: ')
+    # ClientCountClass.clientCount = numClients
+    # nc = numClients
+    start(int(numClients), fHeap, serverSocket)
+
+
+def start(numClients, fHeap, server):
     # make server start listening for connections, and passing them to handle_client to run in a new thread
     # server.settimeout(30)
     server.listen()
     print(f'[LISTENING] Server is listening on {SERVER}')
+
+    connCount, addrCount = server.accept()
+    connCount.send(str(numClients).encode(FORMAT))
 
     # try:
     # time_limit = 30     # duration for which connections will be accepted
@@ -86,7 +83,7 @@ def start(numClients):
         conn, addr = server.accept()    # blocking line
         # waits until a new connection occurs, after which it stores the add of that connection (what ip and port it came from),
         # and we will store an actual socket object conn which will help us send info back to that connection
-        thread = threading.Thread(target=handle_client, args=(conn, addr))
+        thread = threading.Thread(target=handle_client, args=(conn, addr, fHeap))
         thread.start()
         print(f'[ACTIVE CONNECTIONS] {threading.activeCount() - 1}')    # -1 because 1 thread [start()] is always running
 
@@ -110,6 +107,33 @@ def start(numClients):
         clientsLeft -= 1
 
 
-print("[STARTING] server is starting...")
-numClients = input('enter no of clients: ')
-start(int(numClients))
+def handle_client(conn, addr, fHeap):
+    # handle individual connections bw each client and server
+    print(f'[NEW CONNECTION] {addr} connected.')
+
+    connection_info = (conn, addr)
+
+    connected = True
+    while connected:
+        msg_length = conn.recv(HEADER).decode(FORMAT)       # blocking line - wont pass until we receive a message
+        if msg_length:
+            msg_length = int(msg_length)
+            msg = conn.recv(msg_length).decode(FORMAT)
+            # if msg == DISCONNECT_MESSAGE:
+            #     connected = False
+
+            # else:
+            key = msg
+            pc_tuple = (KeyPriorities.KEY_PRIORITY[key], connection_info)
+            fibonacciHeap.perform_operation(FHEAP=fHeap, OPERATION='insert', PC_TUPLE=pc_tuple)
+            fibonacciHeap.FibonacciHeap.numOfElements += 1
+            # connected = False
+
+            print(f'[{addr}] {msg}')
+            conn.send(f'received {msg}'.encode(FORMAT))
+
+    # conn.close()
+
+
+if __name__ == "__main__":
+    main()
