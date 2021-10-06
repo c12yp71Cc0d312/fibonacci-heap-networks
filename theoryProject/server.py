@@ -58,6 +58,7 @@ def handle_client(conn, addr):
                 key = msg
                 pc_tuple = (KEY_PRIORITY[key], connection_info)
                 fibonacciHeap.perform_operation(FHEAP=fHeap, OPERATION='insert', PC_TUPLE=pc_tuple)
+                fibonacciHeap.FibonacciHeap.numOfElements += 1
                 # connected = False
 
             print(f'[{addr}] {msg}')
@@ -101,7 +102,9 @@ def start(numClients):
         #     break
 
     # except:
-    time.sleep(2)
+    while fibonacciHeap.FibonacciHeap.numOfElements != numClients:
+        # time.sleep(0.2)
+        print(f'no of elements in heap is {fibonacciHeap.FibonacciHeap.numOfElements}')
     print('Connection window closed')
 
     clientsLeft = numClients
