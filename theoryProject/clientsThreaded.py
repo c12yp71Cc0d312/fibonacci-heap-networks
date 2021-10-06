@@ -1,6 +1,7 @@
+import random
 import socket
 import threading
-
+import randomkeys
 HEADER = 16
 PORT = 5050
 FORMAT = 'utf-8'
@@ -12,7 +13,7 @@ ADDR = (SERVER, PORT)
 
 clientSockets = []
 
-numOfClients = 10
+numOfClients = 10000
 
 for i in range(numOfClients):
     clientSockets.append(socket.socket(socket.AF_INET, socket.SOCK_STREAM))
@@ -59,18 +60,11 @@ def sendAndReceiveData(key, client, clientNum):
             #     pass
 
 
-keysList = ['NVlmeNRzf7',
-            'xLrzS5gq0j',
-            'QuQtu3NUus',
-            'SO7NZPfjDv',
-            'Cg19Dptlbt',
-            'P6VG2yrfKE',
-            'f4vqNin2fB',
-            'KVordqgoIJ',
-            '4Osgxwn47b',
-            'ksfAh4fdfd']
+keysList = randomkeys.keys
 
 
+
+random.shuffle( keysList )
 for i in range(numOfClients):
     key = keysList[i]
     thread = threading.Thread(target=sendAndReceiveData, args=(key, clientSockets[i], i))

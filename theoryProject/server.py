@@ -1,6 +1,7 @@
 import socket
 import threading
 import time
+import randomkeys
 import fibonacciHeap
 
 HEADER = 16     # length of header message. since we dont know what would be the message size, the first message
@@ -15,17 +16,10 @@ FORMAT = 'utf-8'    # format to decode the bytes message into
 
 DISCONNECT_MESSAGE = '!DISCONNECT'  # if this message is received, we will close the connection and disconnect client from the server
 
-KEY_PRIORITY = {'NVlmeNRzf7': 1,
-                'xLrzS5gq0j': 2,
-                'QuQtu3NUus': 3,
-                'SO7NZPfjDv': 4,
-                'Cg19Dptlbt': 5,
-                'P6VG2yrfKE': 6,
-                'f4vqNin2fB': 7,
-                'KVordqgoIJ': 8,
-                '4Osgxwn47b': 9,
-                'ksfAh4fdfd': 10
-}
+KEY_PRIORITY = { }
+
+for i in range (10000):
+    KEY_PRIORITY[randomkeys.keys[i]] = i+1
 
 fHeap = fibonacciHeap.FibonacciHeap()
 
