@@ -90,7 +90,6 @@ def sendAndReceiveData(key, client, clientNum):
 
     recMsg = recMsg.decode(FORMAT)
     print(f'client {clientNum} received (priority): {recMsg}---')
-    count += 1
 
     # while True:
     #     msg = client.recv(recLen)
@@ -141,12 +140,16 @@ def sendAndReceiveData(key, client, clientNum):
         recFile += client.recv(expectedlength - recvlength)
         recvlength = len(recFile)
         totFileLenRec += recvlength
-        # print(f'client {clientNum} rec:tot = {recLen}:{totFileLenRec}')
+        print(f'client {clientNum} rec:tot = {recLen}:{totFileLenRec}')
 
-    # print(f'client {clientNum} received file sized: {totFileLenRec}')
+    print(f'client {clientNum} received file sized: {totFileLenRec}')
     with open(f'received/file{clientNum}.txt', 'wb') as f:
         f.write(recFile)
     print(f'client {clientNum} has received the file')
+    if (count == numOfClients):
+        end_time = time.perf_counter()
+        print("\n\n", end_time - start_time, "seconds")
+    count += 1
     client.close()
 
 
