@@ -4,14 +4,11 @@ import threading
 import randomkeys
 import time
 
-# from server import ClientCountClass
-import server
-start_time = time.perf_counter ()
 HEADER = 16
 PORT = 5050
 FORMAT = 'utf-8'
+start_time = time.perf_counter()
 
-# DISCONNECT_MESSAGE = '!DISCONNECT'
 # SERVER = '192.168.0.103'
 SERVER = socket.gethostbyname(socket.gethostname())
 ADDR = (SERVER, PORT)
@@ -28,16 +25,6 @@ def getCount():
     msg = msg.decode(FORMAT)
     print(f'clientCount received: {msg}')
     numOfClients = int(msg)
-    # while True:
-    #     msg = socketClientCount.recv(2048)
-    #
-    #     try:
-    #         msg = msg.decode(FORMAT)
-    #         print(f'clientCount received: {msg}')
-    #         numOfClients = int(msg)
-    #         break
-    #     except:
-    #         pass
 
 
 def initClientSockets():
@@ -57,18 +44,13 @@ def main():
         key = keysList[i]
         thread = threading.Thread(target=sendAndReceiveData, args=(key, clientSockets[i], i))
         thread.start()
-        # sendAndReceiveData(key, clientSockets[i])
 
-iter =1
+
+count = 1
 def sendAndReceiveData(key, client, clientNum):
-    global iter
+    global count
     print(f'client {clientNum} sending key {key}')
     send(key, client, clientNum)
-    # send('P6VG2yrfKE')
-    # input()             # just so that only after any keypress, the next message is sent
-    # send('World')
-    # input()
-    # send(DISCONNECT_MESSAGE)
 
     while True:
         msg = client.recv(2048)
@@ -76,19 +58,22 @@ def sendAndReceiveData(key, client, clientNum):
         try:
             msg = msg.decode(FORMAT)
             print(f'client {clientNum} received: {msg}')
-            if(iter==numOfClients):
-                end_time = time.perf_counter()
-                print("\n\n", end_time - start_time, "seconds")
-            iter+=1
+            # if(count == numOfClients):
+            #     end_time = time.perf_counter()
+            #     print("\n\n", end_time - start_time, "seconds")
+            count += 1
+            break
         except:
             pass
-            # try:
-            #     dataObj = pickle.loads(msg)
-            #     print(f'received: int {dataObj.intVal}, float {dataObj.floatVal}, char {dataObj.charVal}')
-            #     send(DISCONNECT_MESSAGE)
-            #     break
-            # except:
-            #     pass
+
+    filesize = int(client.recv(HEADER).decode(FORMAT))
+    print(f'client {clientNum} received: file size is {filesize}')
+    print(f'client {clientNum} starting to receive file')
+    recFile = client.recv(filesize)
+    with open(f'received/file{clientNum}.ext', 'wb') as f:
+        f.write(recFile)
+    print(f'client {clientNum} has received the file')
+    client.close()
 
 
 def send(msg, client, clientNum):
