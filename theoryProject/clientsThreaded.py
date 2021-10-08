@@ -29,7 +29,9 @@ os.mkdir('received')
 
 def getCount():
     global numOfClients
-    msg = socketClientCount.recv(2048)
+
+    recLen = int(socketClientCount.recv(HEADER).decode(FORMAT))
+    msg = socketClientCount.recv(recLen)
     msg = msg.decode(FORMAT)
     print(f'clientCount received: {msg}')
     numOfClients = int(msg)
@@ -61,8 +63,15 @@ def sendAndReceiveData(key, client, clientNum):
     send(key, client, clientNum)
 
     while True:
-        msg = client.recv(2048)
+        recLen = client.recv(HEADER)
+        try:
+            recLen = int(recLen.decode(FORMAT))
+            break
+        except:
+            pass
 
+    while True:
+        msg = client.recv(recLen)
         try:
             msg = msg.decode(FORMAT)
             print(f'client {clientNum} received: {msg}')
@@ -73,6 +82,20 @@ def sendAndReceiveData(key, client, clientNum):
             break
         except:
             pass
+
+    # while True:
+        # msg = client.recv(2048)
+        #
+        # try:
+        #     msg = msg.decode(FORMAT)
+        #     print(f'client {clientNum} received: {msg}')
+        #     # if(count == numOfClients):
+        #     #     end_time = time.perf_counter()
+        #     #     print("\n\n", end_time - start_time, "seconds")
+        #     count += 1
+        #     break
+        # except:
+        #     pass
 
     filesize = int(client.recv(HEADER).decode(FORMAT))
     print(f'client {clientNum} received: file size is {filesize}')
@@ -94,7 +117,8 @@ def send(msg, client, clientNum):
     client.send(send_length)
     client.send(message)
 
-    msg = client.recv(2048).decode(FORMAT)        # just hardcoding a max message size
+    recLen = int(client.recv(HEADER).decode(FORMAT))
+    msg = client.recv(recLen).decode(FORMAT)        # just hardcoding a max message size
     print(f'client {clientNum} received msg from server: {msg}')
 
 

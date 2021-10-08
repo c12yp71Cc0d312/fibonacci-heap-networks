@@ -53,7 +53,15 @@ def start(numClients, fHeap, server):
     print(f'[LISTENING] Server is listening on {SERVER}')
 
     connCount, addrCount = server.accept()
-    connCount.send(str(numClients).encode(FORMAT))
+    # connCount.send(str(numClients).encode(FORMAT))
+
+    sendMsg = str(numClients).encode(FORMAT)
+    msg_length = len(sendMsg)
+    send_length = str(msg_length).encode(FORMAT)  # encode message length into bytes
+    send_length += b' ' * (HEADER - len(send_length))  # padding message length byte stream to make it HEADER size
+
+    connCount.send(send_length)
+    connCount.send(sendMsg)
 
     clientsLeft = numClients
 
@@ -79,7 +87,14 @@ def start(numClients, fHeap, server):
     clientsLeft = numClients
     while(clientsLeft > 0):
         ci = fibonacciHeap.perform_operation(FHEAP=fHeap, OPERATION='min extract')
-        ci[0].send(f'You have priority {numClients - clientsLeft + 1}'.encode(FORMAT))
+        sendMsg = f'You have priority {numClients - clientsLeft + 1}'.encode(FORMAT)
+        msgLen = len(sendMsg)
+        sendMsgLen = str(msgLen).encode(FORMAT)
+        sendMsgLen += b' ' * (HEADER - len(send_length))
+
+        ci[0].send(sendMsgLen)
+        ci[0].send(sendMsg)
+        # ci[0].send(f'You have priority {numClients - clientsLeft + 1}'.encode(FORMAT))
 
         f = open('filename.ext', "rb")
         fileSize = os.path.getsize('filename.ext')
@@ -113,7 +128,14 @@ def handle_client(conn, addr, fHeap):
         fibonacciHeap.perform_operation(FHEAP=fHeap, OPERATION='insert', PC_TUPLE=pc_tuple)
 
         print(f'[{addr}] {msg}')
-        conn.send(f'received {msg}. Connection established'.encode(FORMAT))
+        sendMsg = f'received {msg}. Connection established'.encode(FORMAT)
+        msgLen = len(sendMsg)
+        sendMsgLen = str(msgLen).encode(FORMAT)
+        sendMsgLen += b' ' * (HEADER - len(sendMsgLen))
+
+        conn.send(sendMsgLen)
+        conn.send(sendMsg)
+        # conn.send(f'received {msg}. Connection established'.encode(FORMAT))
 
 
 if __name__ == "__main__":
