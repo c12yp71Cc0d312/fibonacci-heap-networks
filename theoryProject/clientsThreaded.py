@@ -3,6 +3,8 @@ import socket
 import threading
 import randomkeys
 import time
+import os
+import shutil
 
 HEADER = 16
 PORT = 5050
@@ -18,6 +20,12 @@ socketClientCount = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 socketClientCount.connect(ADDR)
 
 numOfClients = 0
+
+
+if os.path.isdir('received'):
+    shutil.rmtree('received')
+os.mkdir('received')
+
 
 def getCount():
     global numOfClients
