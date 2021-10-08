@@ -140,9 +140,9 @@ def sendAndReceiveData(key, client, clientNum):
         recFile += client.recv(expectedlength - recvlength)
         recvlength = len(recFile)
         totFileLenRec += recvlength
-        print(f'client {clientNum} rec:tot = {recLen}:{totFileLenRec}')
+        # print(f'client {clientNum} rec:tot = {recLen}:{totFileLenRec}')
 
-    print(f'client {clientNum} received file sized: {totFileLenRec}')
+    # print(f'client {clientNum} received file sized: {totFileLenRec}')
     with open(f'received/file{clientNum}.txt', 'wb') as f:
         f.write(recFile)
     print(f'client {clientNum} has received the file')
