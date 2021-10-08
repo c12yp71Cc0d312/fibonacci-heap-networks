@@ -6,7 +6,7 @@ import os
 
 HEADER = 16     # length of header message. since we dont know what would be the message size, the first message
                 # the client send would be a HEADER of 16 bytes, which tells us the size of the actual message
-PORT = 5050
+PORT = 50000
 
 # SERVER = '192.168.0.103'    #ipv4 ofthis device
 SERVER = socket.gethostbyname(socket.gethostname())
@@ -90,14 +90,14 @@ def start(numClients, fHeap, server):
         sendMsg = f'You have priority {numClients - clientsLeft + 1}'.encode(FORMAT)
         msgLen = len(sendMsg)
         sendMsgLen = str(msgLen).encode(FORMAT)
-        sendMsgLen += b' ' * (HEADER - len(send_length))
+        sendMsgLen += b' ' * (HEADER - len(sendMsgLen))
 
         ci[0].send(sendMsgLen)
         ci[0].send(sendMsg)
         # ci[0].send(f'You have priority {numClients - clientsLeft + 1}'.encode(FORMAT))
 
-        f = open('filename.ext', "rb")
-        fileSize = os.path.getsize('filename.ext')
+        f = open('abc.txt', "rb")
+        fileSize = os.path.getsize('abc.txt')
         l = f.read(fileSize)
         fileLength = str(fileSize).encode(FORMAT)
         fileLength += b' ' * (HEADER - len(fileLength))
