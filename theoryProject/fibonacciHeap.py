@@ -13,7 +13,6 @@ class FibonacciTree:
 
 
 class FibonacciHeap:
-
     numOfElements = 0
 
     def __init__(self):
@@ -31,6 +30,7 @@ class FibonacciHeap:
     def get_min(self):
         if self.least is None:
             return None
+
         # return self.least.key
         print(self.least.key)
         return self.least.connection_info
@@ -47,6 +47,7 @@ class FibonacciHeap:
                 self.least = self.trees[0]
                 self.consolidate()
             self.count = self.count - 1
+
             # return smallest.key
             print(smallest.key)
             return smallest.connection_info
@@ -80,18 +81,7 @@ def floor_log2(x):
     return math.frexp(x)[1] - 1
 
 
-# fheap = FibonacciHeap()
-
-# print('Menu')
-# print('insert <data>')
-# print('min get')
-# print('min extract')
-# print('quit')
-
-
 def perform_operation(**kwargs):
-    # do = input('What would you like to do? ').split()
-    # operation = do[0].strip().lower()
 
     fheap = kwargs.get('FHEAP')
     operation = kwargs.get('OPERATION')
@@ -112,19 +102,3 @@ def perform_operation(**kwargs):
 
     else:
         print('invalid operation')
-
-
-# while True:
-#     do = input('What would you like to do? ').split()
-#     operation = do[0].strip().lower()
-#     if operation == 'insert':
-#         data = int(do[1])
-#         fheap.insert(data)
-#     elif operation == 'min':
-#         suboperation = do[1].strip().lower()
-#         if suboperation == 'get':
-#             print('Minimum value: {}'.format(fheap.get_min()))
-#         elif suboperation == 'extract':
-#             print('Minimum value removed: {}'.format(fheap.extract_min()))
-#     elif operation == 'quit':
-#         break
