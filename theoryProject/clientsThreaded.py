@@ -11,22 +11,25 @@ PORT = 50000
 FORMAT = 'utf-8'
 start_time = time.perf_counter()
 
-# SERVER = '192.168.0.103'
-SERVER = socket.gethostbyname(socket.gethostname())
+SERVER = socket.gethostbyname(socket.gethostname())         # gets localhost ipv4
 ADDR = (SERVER, PORT)
 
+# a list of sockets for each client
 clientSockets = []
+
+# socket to receive the no of clients from the server
 socketClientCount = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 socketClientCount.connect(ADDR)
 
 numOfClients = 0
 
-
+# creating received dir if it doesnt exist, else deleting current one and creating new one
 if os.path.isdir('received'):
     shutil.rmtree('received')
 os.mkdir('received')
 
 
+# function to get no of clients value from the server
 def getCount():
     global numOfClients
 
@@ -37,12 +40,14 @@ def getCount():
     numOfClients = int(msg)
 
 
+# function to initialize the sockets for each client
 def initClientSockets():
     for i in range(numOfClients):
         clientSockets.append(socket.socket(socket.AF_INET, socket.SOCK_STREAM))
         clientSockets[i].connect(ADDR)
 
 
+# main function
 def main():
     getCount()
     initClientSockets()
@@ -50,6 +55,8 @@ def main():
     keysList = randomkeys.keys
     print(f'no of clients: {numOfClients}')
     random.shuffle(keysList)
+
+    # creating a separate thread to process each client socket
     for i in range(numOfClients):
         key = keysList[i]
         thread = threading.Thread(target=sendAndReceiveData, args=(key, clientSockets[i], i))
@@ -57,11 +64,16 @@ def main():
 
 
 count = 1
+# function calls send(), and receives the priority msg and the file sent by the server
 def sendAndReceiveData(key, client, clientNum):
     global count
     print(f'client {clientNum} sending key {key}')
+
+    # passes the key value to send()
     send(key, client, clientNum)
 
+
+    # priority msg size
     expectedlength = HEADER
     recvlength = 0
     recLen = bytearray()
@@ -70,17 +82,9 @@ def sendAndReceiveData(key, client, clientNum):
         recvlength = len(recLen)
 
     recLen = int(recLen.decode(FORMAT))
-    # recLen = int(client.recv(HEADER).decode(FORMAT))
 
 
-    # while True:
-    #     recLen = client.recv(HEADER)
-    #     try:
-    #         recLen = int(recLen.decode(FORMAT))
-    #         break
-    #     except:
-    #         pass
-
+    # prioirty msg
     expectedlength = int(recLen)
     recvlength = 0
     recMsg = bytearray()
@@ -91,33 +95,8 @@ def sendAndReceiveData(key, client, clientNum):
     recMsg = recMsg.decode(FORMAT)
     print(f'client {clientNum} received (priority): {recMsg}---')
 
-    # while True:
-    #     msg = client.recv(recLen)
-    #     try:
-    #         msg = msg.decode(FORMAT)
-    #         print(f'client {clientNum} received (priority): {msg}')
-    #         # if(count == numOfClients):
-    #         #     end_time = time.perf_counter()
-    #         #     print("\n\n", end_time - start_time, "seconds")
-    #         count += 1
-    #         break
-    #     except:
-    #         pass
 
-    # while True:
-        # msg = client.recv(2048)
-        #
-        # try:
-        #     msg = msg.decode(FORMAT)
-        #     print(f'client {clientNum} received: {msg}')
-        #     # if(count == numOfClients):
-        #     #     end_time = time.perf_counter()
-        #     #     print("\n\n", end_time - start_time, "seconds")
-        #     count += 1
-        #     break
-        # except:
-        #     pass
-
+    # rec file size
     expectedlength = HEADER
     recvlength = 0
     filesize = bytearray()
@@ -127,10 +106,11 @@ def sendAndReceiveData(key, client, clientNum):
 
     filesize = int(filesize.decode(FORMAT))
 
-    # filesize = int(client.recv(HEADER).decode(FORMAT))
     print(f'client {clientNum} received: file size is {filesize}')
     print(f'client {clientNum} starting to receive file')
 
+
+    # rec file
     expectedlength = int(filesize)
     recvlength = 0
 
@@ -140,12 +120,15 @@ def sendAndReceiveData(key, client, clientNum):
         recFile += client.recv(expectedlength - recvlength)
         recvlength = len(recFile)
         totFileLenRec += recvlength
-        # print(f'client {clientNum} rec:tot = {recLen}:{totFileLenRec}')
 
-    # print(f'client {clientNum} received file sized: {totFileLenRec}')
+
+    # writing received file
     with open(f'received/file{clientNum}.txt', 'wb') as f:
         f.write(recFile)
     print(f'client {clientNum} has received the file')
+
+
+    # cehcking whether all clients processed in order to stop timer
     if (count == numOfClients):
         end_time = time.perf_counter()
         print("\n\n", end_time - start_time, "seconds")
@@ -153,16 +136,22 @@ def sendAndReceiveData(key, client, clientNum):
     client.close()
 
 
+# sends the key to the server and receives an acknowledgement msg of conn established
 def send(msg, client, clientNum):
+    # encoding the msg containing the key into a bytearray
     message = msg.encode(FORMAT)    # encode message string into bytes
 
+    # encoding len of key msg into a bytearray
     msg_length = len(message)
     send_length = str(msg_length).encode(FORMAT)      # encode message length into bytes
     send_length += b' ' * (HEADER - len(send_length))       # padding message length byte stream to make it HEADER size
 
+    # sending key msg length and the key msg
     client.send(send_length)
     client.send(message)
 
+
+    # conn establish msg size
     expectedlength = int(HEADER)
     recvlength = 0
     recLen = bytearray()
@@ -171,8 +160,9 @@ def send(msg, client, clientNum):
         recvlength = len(recLen)
 
     recLen = int(recLen.decode(FORMAT))
-    # recLen = int(client.recv(HEADER).decode(FORMAT))
 
+
+    # conn establish msg
     expectedlength = int(recLen)
     recvlength = 0
     recMsg = bytearray()
@@ -181,8 +171,8 @@ def send(msg, client, clientNum):
         recvlength = len(recMsg)
 
     recMsg = recMsg.decode(FORMAT)
-    # msg = client.recv(recLen).decode(FORMAT)        # just hardcoding a max message size
     print(f'client {clientNum} received msg from server (establish): {recMsg}---')
+
 
 
 if __name__ == "__main__":
