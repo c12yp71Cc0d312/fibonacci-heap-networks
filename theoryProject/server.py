@@ -3,6 +3,7 @@ import threading
 import randomkeys
 import fibonacciHeap
 import os
+import math
 
 HEADER = 16     # length of header message. since we dont know what would be the message size, the first message
                 # the client send would be a HEADER msg of 16 bytes, which tells us the size of the actual message
@@ -12,6 +13,10 @@ SERVER = socket.gethostbyname(socket.gethostname())     # gets localhost ipv4
 ADDR = (SERVER, PORT)
 
 FORMAT = 'utf-8'    # format to decode the bytes message into
+
+
+numClientsForFirst9Files = 1
+fileNames = ['a.txt', 'b.txt', 'c.txt', 'd.txt', 'e.txt', 'f.txt', 'g.txt', 'h.txt', 'i.txt', 'j.txt']
 
 
 # class whose member clientCount contains the no of clients
@@ -37,6 +42,16 @@ def initHeapAndSocket():
     return fHeap, server
 
 
+def calcNumClientsForFirst9Files(numClients):
+    global numClientsForFirst9Files
+    if numClients < 10:
+        return
+    if numClients % 9 == 0:
+        numClientsForFirst9Files = numClients/9 - 1
+    else:
+        numClientsForFirst9Files = math.floor(numClients/9)
+
+
 # main function
 def main():
     KeyPriorities.setPriotities()
@@ -44,7 +59,7 @@ def main():
 
     print("[STARTING] server is starting...")
     numClients = input('enter no of clients: ')
-
+    calcNumClientsForFirst9Files(int(numClients))
     start(int(numClients), fHeap, serverSocket)
 
 
@@ -104,8 +119,9 @@ def start(numClients, fHeap, server):
         # getting the min from the fibonacci heap
         ci = fibonacciHeap.perform_operation(FHEAP=fHeap, OPERATION='min extract')
 
+        priority = numClients - clientsLeft + 1
         # encoding prioirty msg
-        sendMsg = f'You have priority {numClients - clientsLeft + 1}'.encode(FORMAT)
+        sendMsg = f'You have priority {priority}'.encode(FORMAT)
 
         # encoding len of priority msg into bytearray
         msgLen = len(sendMsg)
@@ -116,9 +132,21 @@ def start(numClients, fHeap, server):
         ci[0].send(sendMsgLen)
         ci[0].send(sendMsg)
 
+
+        # calculating the file to choose for the current priority
+        if priority > numClientsForFirst9Files * 9:
+            fIndex = 9
+        elif priority % numClientsForFirst9Files == 0:
+            fIndex = int(priority / numClientsForFirst9Files) - 1
+        else:
+            fIndex = int(math.floor(priority / numClientsForFirst9Files))
+        print(f'priority {priority} has fIndex {fIndex}')
+        fileName = fileNames[fIndex]
+
+
         # opening and reading file to send
-        f = open('g.txt', "rb")
-        fileSize = os.path.getsize('g.txt')
+        f = open(f'sending_files/{fileName}', "rb")
+        fileSize = os.path.getsize(f'sending_files/{fileName}')
         l = f.read(fileSize)
 
         # encoding size of file into bytearray
