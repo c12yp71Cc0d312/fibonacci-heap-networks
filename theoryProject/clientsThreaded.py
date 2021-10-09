@@ -22,7 +22,7 @@ socketClientCount = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 socketClientCount.connect(ADDR)
 
 numOfClients = 0
-
+avg_latency =  0.0
 # creating received dir if it doesnt exist, else deleting current one and creating new one
 if os.path.isdir('received'):
     shutil.rmtree('received')
@@ -62,11 +62,19 @@ def main():
         thread = threading.Thread(target=sendAndReceiveData, args=(key, clientSockets[i], i))
         thread.start()
 
+def convert_bytes(size):
+    for x in ['bytes', 'KB', 'MB', 'GB', 'TB']:
+        if size < 1024.0:
+            return "%3.1f %s" % (size, x)
+        size /= 1024.0
+
+    return size
 
 count = 1
 # function calls send(), and receives the priority msg and the file sent by the server
 def sendAndReceiveData(key, client, clientNum):
     global count
+    global avg_latency
     print(f'client {clientNum} sending key {key}')
 
     # passes the key value to send()
@@ -116,11 +124,14 @@ def sendAndReceiveData(key, client, clientNum):
 
     totFileLenRec = 0
     recFile = bytearray()
+    latency_start=time.perf_counter()
     while expectedlength - recvlength > 0:
         recFile += client.recv(expectedlength - recvlength)
         recvlength = len(recFile)
         totFileLenRec += recvlength
-
+    latency_end = time.perf_counter()
+    avg_latency +=latency_end - latency_start
+    print(f'Client {clientNum} latencytime:',latency_end - latency_start,"seconds")
 
     # writing received file
     with open(f'received/file{clientNum}.txt', 'wb') as f:
@@ -131,7 +142,10 @@ def sendAndReceiveData(key, client, clientNum):
     # cehcking whether all clients processed in order to stop timer
     if (count == numOfClients):
         end_time = time.perf_counter()
-        print("\n\n", end_time - start_time, "seconds")
+        print("\n", end_time - start_time, "seconds")
+        avg_latency=avg_latency/numOfClients
+        file_size = convert_bytes(filesize)
+        print(f'\n Avgerage Latency for file size of {file_size} is:{avg_latency}')
     count += 1
     client.close()
 

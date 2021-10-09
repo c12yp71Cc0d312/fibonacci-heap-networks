@@ -117,8 +117,8 @@ def start(numClients, fHeap, server):
         ci[0].send(sendMsg)
 
         # opening and reading file to send
-        f = open('abc.txt', "rb")
-        fileSize = os.path.getsize('abc.txt')
+        f = open('g.txt', "rb")
+        fileSize = os.path.getsize('g.txt')
         l = f.read(fileSize)
 
         # encoding size of file into bytearray
