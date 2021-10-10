@@ -18,7 +18,7 @@ FORMAT = 'utf-8'    # format to decode the bytes message into
 evenlyDividedPartCount = 0
 numFilesExtraClient = 0
 totalCountEvenlyDividedClients = 0
-fileNames = ['a.txt', 'b.txt', 'c.txt', 'd.txt', 'e.txt', 'f.txt', 'g.txt', 'h.txt', 'i.txt', 'j.txt']
+fileNames = os.listdir('sending_files')
 noOfFilesToSend = 0
 
 
