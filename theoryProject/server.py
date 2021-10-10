@@ -45,7 +45,7 @@ def initHeapAndSocket():
     return fHeap, server
 
 
-def calcNumClients(numClients):
+def calcFileSplit(numClients):
     global evenlyDividedPartCount
     global numFilesExtraClient
     global totalCountEvenlyDividedClients
@@ -71,7 +71,7 @@ def main():
     print("[STARTING] server is starting...")
     numClients = input('enter no of clients: ')
     noOfFilesToSend = int(input('enter no of unique files to send: '))
-    calcNumClients(int(numClients))
+    calcFileSplit(int(numClients))
     start(int(numClients), fHeap, serverSocket)
 
 
@@ -159,10 +159,16 @@ def start(numClients, fHeap, server):
         fileSize = os.path.getsize(f'sending_files/{fileName}')
         l = f.read(fileSize)
 
-        # sending file name
+
+        # encoding fileName size and fileName into bytearray
+        fNameSize = str(len(fileName)).encode(FORMAT)
+        fNameSize += b' ' * (HEADER - len(fNameSize))
         fname = str(fileName).encode(FORMAT)
-        fname +=b' ' * (HEADER - len(fname))
+
+        # sending filename size and the file name
+        ci[0].send(fNameSize)
         ci[0].send(fname)
+
 
         # encoding size of file into bytearray
         fileLength = str(fileSize).encode(FORMAT)

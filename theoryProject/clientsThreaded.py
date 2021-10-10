@@ -110,8 +110,20 @@ def sendAndReceiveData(key, client, clientNum):
     recMsg = recMsg.decode(FORMAT)
     print(f'client {clientNum} received (priority): {recMsg}---')
 
-    #file name
+
+    # file name size
     expectedlength = HEADER
+    recvlength = 0
+    fNameSize = bytearray()
+    while expectedlength - recvlength > 0:
+        fNameSize += client.recv(expectedlength - recvlength)
+        recvlength = len(fNameSize)
+
+    fNameSize = int(fNameSize.decode(FORMAT))
+
+
+    # file name
+    expectedlength = fNameSize
     recvlength = 0
     recname = bytearray()
     while expectedlength - recvlength > 0:
@@ -119,8 +131,7 @@ def sendAndReceiveData(key, client, clientNum):
         recvlength = len(recname)
 
     recname = recname.decode(FORMAT)
-    print(f'client {clientNum} received (filename_size): {recname}---')
-
+    print(f'client {clientNum} received (filename): {recname}---')
 
 
     # rec file size
