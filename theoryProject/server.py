@@ -15,8 +15,11 @@ ADDR = (SERVER, PORT)
 FORMAT = 'utf-8'    # format to decode the bytes message into
 
 
-numClientsForFirst9Files = 1
+evenlyDividedPartCount = 0
+numFilesExtraClient = 0
+totalCountEvenlyDividedClients = 0
 fileNames = ['a.txt', 'b.txt', 'c.txt', 'd.txt', 'e.txt', 'f.txt', 'g.txt', 'h.txt', 'i.txt', 'j.txt']
+noOfFilesToSend = 0
 
 
 # class whose member clientCount contains the no of clients
@@ -43,22 +46,31 @@ def initHeapAndSocket():
 
 
 def calcNumClientsForFirst9Files(numClients):
-    global numClientsForFirst9Files
-    if numClients < 10:
-        return
-    if numClients % 9 == 0:
-        numClientsForFirst9Files = numClients/9 - 1
+    global evenlyDividedPartCount
+    global numFilesExtraClient
+    global totalCountEvenlyDividedClients
+    global noOfFilesToSend
+
+    if numClients < noOfFilesToSend:
+        evenlyDividedPartCount = 1
+        numFilesExtraClient = 0
+        totalCountEvenlyDividedClients = numClients
     else:
-        numClientsForFirst9Files = math.floor(numClients/9)
+        evenlyDividedPartCount = math.floor(numClients/noOfFilesToSend)
+        numFilesExtraClient = numClients % noOfFilesToSend
+        totalCountEvenlyDividedClients = evenlyDividedPartCount * (noOfFilesToSend - numFilesExtraClient)
 
 
 # main function
 def main():
+    global noOfFilesToSend
+
     KeyPriorities.setPriotities()
     fHeap, serverSocket = initHeapAndSocket()
 
     print("[STARTING] server is starting...")
     numClients = input('enter no of clients: ')
+    noOfFilesToSend = int(input('enter no of unique files to send: '))
     calcNumClientsForFirst9Files(int(numClients))
     start(int(numClients), fHeap, serverSocket)
 
@@ -134,12 +146,10 @@ def start(numClients, fHeap, server):
 
 
         # calculating the file to choose for the current priority
-        if priority > numClientsForFirst9Files * 9:
-            fIndex = 9
-        elif priority % numClientsForFirst9Files == 0:
-            fIndex = int(priority / numClientsForFirst9Files) - 1
+        if priority <= totalCountEvenlyDividedClients:
+            fIndex = math.ceil(priority/evenlyDividedPartCount) - 1
         else:
-            fIndex = int(math.floor(priority / numClientsForFirst9Files))
+            fIndex = (noOfFilesToSend - numFilesExtraClient) + math.ceil((priority - totalCountEvenlyDividedClients) / (evenlyDividedPartCount + 1)) - 1
         print(f'priority {priority} has fIndex {fIndex}')
         fileName = fileNames[fIndex]
 

@@ -156,7 +156,7 @@ def sendAndReceiveData(key, client, clientNum):
         print(f'\nTotal time taken: {end_time - start_time} seconds')
         avg_latency = avg_latency/numOfClients
         avg_file_size = convert_bytes(sumFileSizes/numOfClients)
-        print(f'\nAverage Latency for average file size of {avg_file_size} is: {avg_latency}')
+        print(f'\nAverage Latency for average file size of {avg_file_size} is: {avg_latency} seconds')
     count += 1
     client.close()
 
