@@ -110,6 +110,18 @@ def sendAndReceiveData(key, client, clientNum):
     recMsg = recMsg.decode(FORMAT)
     print(f'client {clientNum} received (priority): {recMsg}---')
 
+    #file name
+    expectedlength = HEADER
+    recvlength = 0
+    recname = bytearray()
+    while expectedlength - recvlength > 0:
+        recname += client.recv(expectedlength - recvlength)
+        recvlength = len(recname)
+
+    recname = recname.decode(FORMAT)
+    print(f'client {clientNum} received (filename_size): {recname}---')
+
+
 
     # rec file size
     expectedlength = HEADER
@@ -145,7 +157,7 @@ def sendAndReceiveData(key, client, clientNum):
     print(f'Client {clientNum} latencytime: {latency_end - latency_start} seconds---')
 
     # writing received file
-    with open(f'received/file{clientNum}.txt', 'wb') as f:
+    with open(f'received/file{clientNum}_{recname}', 'wb') as f:
         f.write(recFile)
     print(f'client {clientNum} has received the file')
 
