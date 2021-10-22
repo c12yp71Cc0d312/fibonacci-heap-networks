@@ -20,20 +20,13 @@ numFilesExtraClient = 0
 totalCountEvenlyDividedClients = 0
 fileNames = os.listdir('sending_files')
 noOfFilesToSend = 0
+KEY_PRIORITY = {}
 
 
-# class whose member clientCount contains the no of clients
-class ClientCountClass:
-    clientCount = 0
-
-
-# class whose member KEY_PRIORITY contains a dictionary of key:priority values
-class KeyPriorities:
-    KEY_PRIORITY = {}
-    @staticmethod
-    def setPriotities():
-        for i in range(10000):
-            KeyPriorities.KEY_PRIORITY[randomkeys.keys[i]] = i+1
+# function to set the priorities randomly for the keys
+def setPriorities():
+    for i in range(10000):
+        KEY_PRIORITY[randomkeys.keys[i]] = i + 1
 
 
 # function to initialize the FibonacciHeap() instance fHeap and the server socket
@@ -65,7 +58,8 @@ def calcFileSplit(numClients):
 def main():
     global noOfFilesToSend
 
-    KeyPriorities.setPriotities()
+    # KeyPriorities.setPriotities()
+    setPriorities()
     fHeap, serverSocket = initHeapAndSocket()
 
     print("[STARTING] server is starting...")
@@ -215,7 +209,7 @@ def handle_client(conn, addr, fHeap):
     key = msg
 
     # tuple contains (priority, key) to process in the fibonacciHeap
-    pc_tuple = (KeyPriorities.KEY_PRIORITY[key], connection_info)
+    pc_tuple = (KEY_PRIORITY[key], connection_info)
 
     # updating no of elements of the heap
     fibonacciHeap.FibonacciHeap.numOfElements += 1
